@@ -1,10 +1,14 @@
 #include "galois_field_8.h"
 
 // Credits:
-// Help from https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders for practical implementations,
-//      especially for the optimized parts such as polynomial evaluations and division parts which were faster than mine.
-// Other help from https://web.eecs.utk.edu/~jplank/plank/papers/CS-07-593/ especially for verifying my code.
-// Lastly, theoretical help from https://downloads.bbc.co.uk/rd/pubs/whp/whp-pdf-files/WHP031.pdf for debugging
+// Help from https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders 
+//      for practical implementations, especially for the optimized parts 
+//      such as polynomial evaluations and division parts which were faster 
+//      than mine.
+// Other help from https://web.eecs.utk.edu/~jplank/plank/papers/CS-07-593/ 
+//      especially for verifying my code.
+// Lastly, theoretical help from https://downloads.bbc.co.uk/rd/pubs/whp/whp-pdf-files/WHP031.pdf 
+//      for debugging
 
 // Some constants
 #define GF8_PRIMITIVE_POLYNOMIAL 0x11D
@@ -20,8 +24,7 @@ int gf8_init()
 {
     // Initialize the lookup tables for multiplications in GF(2^8)
     uint8_t x = 1;
-    for(uint8_t i = 0; i < 0xFF; i++)
-    {
+    for(uint8_t i = 0; i < 0xFF; i++) {
         gf8_exp[i] = x;
         gf8_log[x] = i;
         x = gf8_mul_nolut(x, 2);
@@ -48,20 +51,18 @@ uint8_t gf8_mul_nolut(uint8_t a, uint8_t b)
     uint8_t r = 0;
 
     // While b is above 0
-    while(b > 0)
-    {
+    while(b > 0) {
         // If is an odd number, add a to the buffer
-        if(b & 1)
-        {
+        if(b & 1) {
             r = gf8_add(buffer, r);
         }
         // Multiply b by 2
         buffer = buffer << 1; 
         // Divide a by 2
         b = b >> 1; 
-        // Do modular reduction if a is above 255 using the primative polynomial for GF(2^8)
-        if(buffer > 0xFF)
-        {
+        // Do modular reduction if a is above 255 using 
+        // the primative polynomial for GF(2^8)
+        if(buffer > 0xFF) {
             buffer = gf8_add(buffer, GF8_PRIMITIVE_POLYNOMIAL);
         }
     }
@@ -77,8 +78,7 @@ uint8_t gf8_mul(uint8_t a, uint8_t b)
 uint8_t gf8_div(uint8_t a, uint8_t b)
 {
     // Divide two numbers in GF(2^8) using the lookup tables
-    if(a == 0 || b == 0)
-    {
+    if(a == 0 || b == 0) {
         return 0;
     }
     return gf8_exp[(gf8_log[a] + 0xFF - gf8_log[b]) % 0xFF];
@@ -95,41 +95,118 @@ uint8_t gf8_inv(uint8_t a)
     return gf8_exp[0xFF - gf8_log[a]];
 }
 
-int gf8_poly_scale(uint8_t* buffer, uint8_t* p, uint8_t scale, uint8_t p_len)
+int gf8_poly_scale(uint8_t* buffer, uint8_t* p, 
+    uint8_t scale, uint8_t p_len)
 {
-    for(int i = 0; i < p_len; i++)
-    {
+    for(int i = 0; i < p_len; i++) {
         buffer[i] = gf8_mul(p[i], scale);
     }
+    return 0;
 }
 
-int gf8_poly_add(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len)
+int gf8_poly_add(uint8_t* buffer, uint8_t* p, uint8_t* q, 
+    uint8_t p_len, uint8_t q_len)
 {
     int max_len = p_len > q_len ? p_len : q_len;
-    for(int i = 0; i < max_len; i++)
-    {
+    for(int i = 0; i < max_len; i++) {
         buffer[i + max_len - p_len] = p[i];
     }
-    for(int i = 0; i < max_len; i++)
-    {
-        buffer[i + max_len - q_len] = gf8_add(buffer[i + max_len - q_len], q[i]);
+    for(int i = 0; i < max_len; i++) {
+        buffer[i + max_len - q_len] = 
+            gf8_add(buffer[i + max_len - q_len], q[i]);
     }
+    return 0;
 }
 
-int gf8_poly_mul(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len)
+int gf8_poly_mul(uint8_t* buffer, uint8_t* p, uint8_t* q, 
+    uint8_t p_len, uint8_t q_len)
 {
-    for(int i = 0; i < p_len; i++)
-    {
-        for(int j = 0; j < q_len; j++)
-        {
+    for(int i = 0; i < p_len; i++) {
+        for(int j = 0; j < q_len; j++) {
             buffer[i + j] = gf8_add(buffer[i + j], gf8_mul(p[i], q[j]));
         }
     }
+    return 0;
 }
 
-int gf8_poly_div(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len)
+int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder, 
+    uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len)
 {
-    
+    // Sanity checks, divisor (q) can't be larger than dividend (p)
+    if(q_len >= p_len) {
+        return -1;
+    }
+    // q_len and p_len can't be 0
+    if(p_len == 0 || q_len == 0) {
+        return -1;
+    }
+
+    // Copy the dividend (p) to quotient buffer
+    for(int i = 0; i < p_len; i++) {
+        buffer_quotient[i] = p[i];
+    }
+
+    // Zero out the remainder for now
+    for(int i = 0; i < q_len; i++) {
+        buffer_remainder[i] = 0;
+    }
+
+    // If p_len and q_len are the same size, idk how to handle this
+    // edge case atm, so we'll give up and return what we have.
+    // TODO: Handle this edge case appropiately.
+    if(p_len == q_len) {
+        return -1;
+    }
+
+    // Okay, this is the fancy synthetic division way directly adapted from 
+    // the wikiversity page since it seems faster and more concise than 
+    // the general synthetic division method.
+    for(int i = 0; i < (p_len - q_len - 1); i++) {
+        // Grab the current coefficient.
+        uint8_t coef = buffer_quotient[i];
+        // Avoid 0 since log(0) is undefined.
+        if(coef != 0) { 
+            // Skip first coefficient for the divisor.
+            for(int j = 1; j < q_len; j++) {    
+                // Do the actual math
+                buffer_quotient[i+j] = gf8_add(buffer_quotient[i+j], 
+                    gf8_mul(q[j], coef)); 
+            }
+        }
+    }
+
+    // The algorithm puts both the quotient and the remainder into 
+    // buffer_quotient, so we need to split it out
+    // We know the remainder is the degree as the divisor (which is length-1)
+    // so we can grab that off buffer_quotient
+    int seperator_index = p_len - (q_len - 1);
+    int seperator_size = p_len - seperator_index;
+
+    // Grab the remainder and delete it from the quotient
+    int k = 1;
+    for(int i = seperator_index; i < p_len; i++) {
+        // Should never happen but.. you never know..
+        if(k >= q_len) {
+            return -1;
+        }
+        buffer_remainder[k] = buffer_quotient[i];
+        buffer_quotient[i] = 0;
+        k++;
+    }
+
+    // Shift the quotient buffer over so the polynomials line up like
+    // they should. Zero out the higher order polynomials
+    for(int i = p_len - 1; i >= 0; i--) {
+        int j = i - seperator_size;
+        if(j < 0) {
+            buffer_quotient[i] = 0;
+        } else {
+            buffer_quotient[i] = buffer_quotient[j];
+        }
+    }
+
+    // If we made it this far, everything succeeded!
+    return 0;
 }
 
 uint8_t gf8_poly_eval(uint8_t* p, uint8_t x, uint8_t p_len)

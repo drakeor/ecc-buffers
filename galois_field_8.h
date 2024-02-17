@@ -64,8 +64,8 @@ uint8_t gf8_inv(uint8_t a);
 
 /*
     * Multiplies a number by a scalar in GF(2^8)
-    * @param buffer The buffer should be the same size, or larger, 
-    *   than the polynomial
+    * @param buffer The buffer should be the same size
+    *   as the polynomial
     * @param p Polynomial to scale
     * @param scale Scalar to multiply by
     * @param length Length of the polynomial p
@@ -75,8 +75,8 @@ int gf8_poly_scale(uint8_t* buffer, uint8_t* p, uint8_t scale, uint8_t p_len);
 
 /*
     * Adds two polynomials in GF(2^8)
-    * @param buffer The buffer should be the same size, or larger, 
-    *   than both polynomials
+    * @param buffer The buffer should be the same size,
+    *   as both polynomials
     * @param p First polynomial
     * @param q Second polynomial
     * @param p_len Length of the polynomial p
@@ -87,8 +87,8 @@ int gf8_poly_add(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t
 
 /*
     * Multiplies two polynomials in GF(2^8)
-    * @param buffer The buffer should be the same size, or larger, 
-    *   than the sum of the lengths of both polynomials
+    * @param buffer The buffer should be the same size 
+    *       as the sum of the lengths of both polynomials
     * @param p First polynomial
     * @param q Second polynomial
     * @param p_len Length of the polynomial p
@@ -100,15 +100,23 @@ int gf8_poly_mul(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t
 uint8_t gf8_mul_nolut(uint8_t a, uint8_t b);
 
 /*
-    * Divides two polynomials in GF(2^8)
-    * @param buffer The buffer should be the same size, or larger, than both polynomial
-    * @param p First polynomial (Dividend)
-    * @param q Second polynomial (Divisor)
+    * Divides two polynomials in GF(2^8).
+    * We expect polynomials to go from highest to lowest order like normal.
+    * 
+    * @param buffer_quotient The buffer should be the same size 
+    *       as the p polynomial (dividend)
+    * @param buffer_remainder The buffer should be the same size 
+    *       as q polynomial (divisor)
+    * @param p First polynomial (Dividend). This should be bigger, or the 
+*           same size as the divisor.
+    * @param q Second polynomial (Divisor). This should be smaller
+    *       than the dividend
     * @param p_len Length of the polynomial p
     * @param q_len Length of the polynomial q
     * @return 0 if the operation was successful, -1 otherwise
 */
-int gf8_poly_div(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len);
+int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
+     uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len);
 
 /*
     * Evaluates a polynomial in GF(2^8) and returns a scalar
