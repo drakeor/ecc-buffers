@@ -47,8 +47,32 @@ void gf8_mul_tests() {
     // Ones that trigger modulos
     TEST_ASSERT_EQUAL_HEX8(0x39, gf8_mul_nolut(0x40, 0x52));
     TEST_ASSERT_EQUAL_HEX8(0x39, gf8_mul_nolut(0x52, 0x40));
+    TEST_ASSERT_EQUAL_HEX8(0xB7, gf8_mul_nolut(0xF0, 0xF0));
+}
+
+void gf8_mul_lut_tests() {
+    // Small enough that we can do an exhaustive test
+    for(uint8_t a = 0; a < 0xFF; a++)
+    {
+        for(uint8_t b = 0; b < 0xFF; b++)
+        {
+            uint8_t val_a = gf8_mul_nolut(a, b);
+            uint8_t val_b = gf8_mul(a, b);
+            TEST_ASSERT_EQUAL_HEX8(val_a, val_b);
+        }
+    }
 }
 
 void gf8_div_tests() { 
 
+    // Identities
+    TEST_ASSERT_EQUAL_HEX8(0xFF, gf8_mul_nolut(0xFF, 0x01));
+    TEST_ASSERT_EQUAL_HEX8(0xFF, gf8_mul_nolut(0x01, 0xFF));
+
+    // Zeroes
+    TEST_ASSERT_EQUAL_HEX8(0x00, gf8_mul_nolut(0xFF, 0x00));
+    TEST_ASSERT_EQUAL_HEX8(0x00, gf8_mul_nolut(0x00, 0xFF));
+    TEST_ASSERT_EQUAL_HEX8(0x00, gf8_mul_nolut(0x00, 0x00));
+
+    
 }

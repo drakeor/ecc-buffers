@@ -84,6 +84,11 @@ uint8_t gf8_mul(uint8_t a, uint8_t b)
         gf8_init();
     }
 
+    // Trivial, return 0
+    if(a == 0 || b == 0) {
+        return 0;
+    }
+
     // Multiply two numbers in GF(2^8) using the lookup tables
     return gf8_exp[(gf8_log[a] + gf8_log[b]) % 0xFF];
 }
@@ -119,6 +124,11 @@ uint8_t gf8_inv(uint8_t a)
         gf8_init();
     }
 
+    // Unlikely, but double check
+    if(gf8_log[a] == 0) {
+        return 0;
+    }
+    
     // Apparently this can be shortcutted to gf8_div(1,a)
     return gf8_exp[0xFF - gf8_log[a]];
 }
