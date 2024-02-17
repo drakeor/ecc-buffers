@@ -10,9 +10,16 @@
 // Lastly, theoretical help from https://downloads.bbc.co.uk/rd/pubs/whp/whp-pdf-files/WHP031.pdf 
 //      for debugging
 
+// For lazy initialization of the gf8 field library.
+// By default, will initialize whenever it requires lookup tables 
+// or other settings.
+// If disabled, remember to call gf8_init() manually in your code.
+#define GF8_LAZY_INIT 1
+int gf8_initialized = 0;
+
 // Some constants
 #define GF8_PRIMITIVE_POLYNOMIAL 0x11D
-#define GF8_PRIMITIVE_ELEMENT 0x03
+//#define GF8_PRIMITIVE_ELEMENT 0x03
 #define GF8_EXP_TABLE_SIZE 256
 #define GF8_LOG_TABLE_SIZE 256
 
@@ -29,6 +36,7 @@ int gf8_init()
         gf8_log[x] = i;
         x = gf8_mul_nolut(x, 2);
     }
+    gf8_initialized = 1;
 }
 
 uint8_t gf8_add(uint8_t a, uint8_t b)
@@ -47,37 +55,46 @@ uint8_t gf8_sub(uint8_t a, uint8_t b)
 uint8_t gf8_mul_nolut(uint8_t a, uint8_t b)
 {
     // We allocate a larger buffer to work with as a might overflow 8 bits.
-    uint16_t buffer = 0;
+    uint8_t r = 0;
 
     // While b is above 0
     while(b > 0) {
-        // If is an odd number, add a to the buffer
+        // If b is an odd number, add a to the buffer
         if(b & 1) {
-            buffer = buffer ^ a;
+            r = r ^ a;
         }
-        // Multiply b by 2
-        a = a << 1; 
-        // Divide a by 2
-        b = b >> 1; 
-        // Do modular reduction if a is above 255 using 
-        // the primative polynomial for GF(2^8)
-        if(buffer > 0xFF) {
-            buffer = buffer ^ GF8_PRIMITIVE_POLYNOMIAL;
+        // Divide b by 2
+        b >>= 1; 
+        // If the left most bit is high, 
+        //  divide by the primitive polynomial
+        if(a & 0x80) {
+            a = (a << 1) ^ GF8_PRIMITIVE_POLYNOMIAL;
+        } else {
+            a <<= 1;
         }
     }
 
-    // Redundant 
-    return buffer & 0xFF;
+    return r;
 }
 
 uint8_t gf8_mul(uint8_t a, uint8_t b)
 {
+    // Initialize GF8 if not already initialized
+    if(GF8_LAZY_INIT && !gf8_initialized) {
+        gf8_init();
+    }
+
     // Multiply two numbers in GF(2^8) using the lookup tables
     return gf8_exp[(gf8_log[a] + gf8_log[b]) % 0xFF];
 }
 
 uint8_t gf8_div(uint8_t a, uint8_t b)
 {
+    // Initialize GF8 if not already initialized
+    if(GF8_LAZY_INIT && !gf8_initialized) {
+        gf8_init();
+    }
+
     // Divide two numbers in GF(2^8) using the lookup tables
     if(a == 0 || b == 0) {
         return 0;
@@ -87,11 +104,21 @@ uint8_t gf8_div(uint8_t a, uint8_t b)
 
 uint8_t gf8_pow(uint8_t a, uint8_t pow)
 {
+    // Initialize GF8 if not already initialized
+    if(GF8_LAZY_INIT && !gf8_initialized) {
+        gf8_init();
+    }
+
     return gf8_exp[(gf8_log[a] * pow) % 0xFF];
 }
 
 uint8_t gf8_inv(uint8_t a)
 {
+    // Initialize GF8 if not already initialized
+    if(GF8_LAZY_INIT && !gf8_initialized) {
+        gf8_init();
+    }
+
     // Apparently this can be shortcutted to gf8_div(1,a)
     return gf8_exp[0xFF - gf8_log[a]];
 }

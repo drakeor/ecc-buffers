@@ -38,6 +38,7 @@ uint8_t gf8_sub(uint8_t a, uint8_t b);
     * @return Product of a and b in GF(2^8)
 */
 uint8_t gf8_mul(uint8_t a, uint8_t b);
+uint8_t gf8_mul_nolut(uint8_t a, uint8_t b);
 
 /*
     * Divides two numbers in GF(2^8)
@@ -96,8 +97,6 @@ int gf8_poly_add(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t
     * @return 0 if the operation was successful, -1 otherwise
 */
 int gf8_poly_mul(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len);
-
-uint8_t gf8_mul_nolut(uint8_t a, uint8_t b);
 
 /*
     * Divides two polynomials in GF(2^8).
