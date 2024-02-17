@@ -48,25 +48,26 @@ uint8_t gf8_mul_nolut(uint8_t a, uint8_t b)
 {
     // We allocate a larger buffer to work with as a might overflow 8 bits.
     uint16_t buffer = 0;
-    uint8_t r = 0;
 
     // While b is above 0
     while(b > 0) {
         // If is an odd number, add a to the buffer
         if(b & 1) {
-            r = gf8_add(buffer, r);
+            buffer = buffer ^ a;
         }
         // Multiply b by 2
-        buffer = buffer << 1; 
+        a = a << 1; 
         // Divide a by 2
         b = b >> 1; 
         // Do modular reduction if a is above 255 using 
         // the primative polynomial for GF(2^8)
         if(buffer > 0xFF) {
-            buffer = gf8_add(buffer, GF8_PRIMITIVE_POLYNOMIAL);
+            buffer = buffer ^ GF8_PRIMITIVE_POLYNOMIAL;
         }
     }
-    return r;
+
+    // Redundant 
+    return buffer & 0xFF;
 }
 
 uint8_t gf8_mul(uint8_t a, uint8_t b)
