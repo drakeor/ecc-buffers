@@ -97,6 +97,8 @@ int gf8_poly_add(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t
 */
 int gf8_poly_mul(uint8_t* buffer, uint8_t* p, uint8_t* q, uint8_t p_len, uint8_t q_len);
 
+uint8_t gf8_mul_nolut(uint8_t a, uint8_t b);
+
 /*
     * Divides two polynomials in GF(2^8)
     * @param buffer The buffer should be the same size, or larger, than both polynomial
