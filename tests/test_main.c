@@ -1,6 +1,7 @@
 #include "unity/unity.h"
 #include "galois_field_8_tests.h"
 #include "galois_field_8_poly_tests.h"
+#include "rs_ec_tests.h"
 
 int main()
 {
@@ -36,6 +37,12 @@ int main()
     RUN_TEST(gf8_poly_div_tests2);
 
     RUN_TEST(gf8_poly_eval_tests);
+
+
+    // RS Error Correction tests
+    ////    
+    RUN_TEST(rs_generator_polynomial_tests);
+    RUN_TEST(rs_encode_tests);
 
     return UNITY_END();
 }
