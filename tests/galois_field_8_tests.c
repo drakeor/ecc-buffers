@@ -115,3 +115,42 @@ void gf8_muldiv_exhaustive_tests() {
         }
     }
 }
+
+void gf8_inv_tests() {
+
+    // Test inverse of 0
+    uint8_t zero_case = gf8_inv(0);
+    TEST_ASSERT_EQUAL_HEX8(0, zero_case);
+
+    // Test other cases
+    for(uint8_t i = 1; i < 0xFF; i++) {
+
+        // Make sure inverse gives us the correct result
+        uint8_t x_inv = gf8_inv(i);
+        uint8_t x = gf8_div(1, i);
+        TEST_ASSERT_EQUAL_HEX8(x, x_inv);
+
+        // Make sure we get that x * x^-1 = 1
+        uint8_t one = gf8_mul(x_inv, i);
+        TEST_ASSERT_EQUAL_HEX8(1, one);
+    }
+}
+
+void gf8_pow_tests() {
+
+    // Alright, do ones that we know are easily verifable
+    // like 2^0 .. 2^7
+    for(int i = 0; i < 8; i++) {
+        TEST_ASSERT_EQUAL_HEX8(1 << i, gf8_pow(2, i));
+    }
+    
+    // Do some small hand written ones
+    TEST_ASSERT_EQUAL_HEX8(1, gf8_pow(3, 0));
+    TEST_ASSERT_EQUAL_HEX8(5, gf8_pow(3, 2));
+    TEST_ASSERT_EQUAL_HEX8(17, gf8_pow(3, 4));
+
+    // Do some large hand written ones
+    TEST_ASSERT_EQUAL_HEX8(226, gf8_pow(255, 2));
+    TEST_ASSERT_EQUAL_HEX8(38, gf8_pow(255, 3));
+    TEST_ASSERT_EQUAL_HEX8(174, gf8_pow(255, 4));
+}

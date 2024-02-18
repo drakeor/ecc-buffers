@@ -16,5 +16,8 @@ int main()
     RUN_TEST(gf8_div_tests);
     RUN_TEST(gf8_muldiv_exhaustive_tests);
 
+    RUN_TEST(gf8_inv_tests);
+    RUN_TEST(gf8_pow_tests);
+
     return UNITY_END();
 }

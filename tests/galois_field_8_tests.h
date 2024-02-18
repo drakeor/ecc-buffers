@@ -10,4 +10,7 @@ void gf8_mul_lut_tests();
 void gf8_div_tests();
 void gf8_muldiv_exhaustive_tests();
 
+void gf8_inv_tests();
+void gf8_pow_tests();
+
 #endif

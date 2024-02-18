@@ -129,13 +129,7 @@ uint8_t gf8_inv(uint8_t a)
         gf8_init();
     }
 
-    // Unlikely, but double check
-    if(gf8_log[a] == 0) {
-        return 0;
-    }
-    
-    // Apparently this can be shortcutted to gf8_div(1,a)
-    return gf8_exp[0xFF - gf8_log[a]];
+    return gf8_div(1, a);
 }
 
 int gf8_poly_scale(uint8_t* buffer, uint8_t* p, 
