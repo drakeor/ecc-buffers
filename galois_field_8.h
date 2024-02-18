@@ -42,8 +42,8 @@ uint8_t gf8_mul_nolut(uint8_t a, uint8_t b);
 
 /*
     * Divides two numbers in GF(2^8)
-    * @param a First number
-    * @param b Second number
+    * @param a First number. Dividend
+    * @param b Second number. Divisor
     * @return Quotient of a and b in GF(2^8)
 */
 uint8_t gf8_div(uint8_t a, uint8_t b);

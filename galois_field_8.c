@@ -17,11 +17,13 @@
 #define GF8_LAZY_INIT 1
 int gf8_initialized = 0;
 
-// Some constants
+// I selected this degree 8 primitive polynomial. 
+// As long as it's consistent.. should be fine
 #define GF8_PRIMITIVE_POLYNOMIAL 0x11D
-//#define GF8_PRIMITIVE_ELEMENT 0x03
-#define GF8_EXP_TABLE_SIZE 256
-#define GF8_LOG_TABLE_SIZE 256
+
+// Size should be 2^8 + 1 to encompass all elements.
+#define GF8_EXP_TABLE_SIZE (0xFF + 1)
+#define GF8_LOG_TABLE_SIZE (0xFF + 1)
 
 // Lookup tables for multiplications in GF(2^8)
 uint8_t gf8_exp[GF8_EXP_TABLE_SIZE] = {0};
@@ -100,10 +102,13 @@ uint8_t gf8_div(uint8_t a, uint8_t b)
         gf8_init();
     }
 
-    // Divide two numbers in GF(2^8) using the lookup tables
+    // Prevent divide by zero errors
     if(a == 0 || b == 0) {
         return 0;
     }
+    // Divide two numbers in GF(2^8) using the lookup tables
+    // Adding 0xFF allows us to not underflow
+    // The mod 0xFF makes sure we stay within the bounds (and field)
     return gf8_exp[(gf8_log[a] + 0xFF - gf8_log[b]) % 0xFF];
 }
 
@@ -189,8 +194,12 @@ int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
         buffer_remainder[i] = 0;
     }
 
-    // If p_len and q_len are the same size, idk how to handle this
-    // edge case atm, so we'll give up and return what we have.
+    // If p_len and q_len are the same size, but different, then
+    // they aren't divisible. If they are the same, then the result 
+    // I think is 1, but I'd have to write it out...
+    // For now, we'll just return an error and give back the quotient
+    // and remainder...
+    //
     // TODO: Handle this edge case appropiately.
     if(p_len == q_len) {
         return -1;
