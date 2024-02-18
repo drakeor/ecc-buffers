@@ -100,14 +100,6 @@ void gf8_poly_div_tests_simple()
     int result = gf8_poly_div(buffer_quotient, buffer_remainder, 
         p, q, 5, 3);
 
-    for(int loop = 0; loop < 5; loop++)
-        printf("%d ", buffer_quotient[loop]);
-    printf("\n");
-
-    for(int loop = 0; loop < 3; loop++)
-        printf("%d ", buffer_remainder[loop]);
-    printf("\n");
-
     TEST_ASSERT_EQUAL_INT8(0, result);
     TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[0]);
     TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[1]);
@@ -133,19 +125,11 @@ void gf8_poly_div_tests()
     int result = gf8_poly_div(buffer_quotient, buffer_remainder, 
         p, q, 4, 2);
 
-    for(int loop = 0; loop < 4; loop++)
-        printf("%d ", buffer_quotient[loop]);
-    printf("\n");
-
-    for(int loop = 0; loop < 2; loop++)
-        printf("%d ", buffer_remainder[loop]);
-    printf("\n");
-
     TEST_ASSERT_EQUAL_INT8(0, result);
     TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[0]);
-    TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[1]);
-    TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[2]);
-    TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[3]);
+    TEST_ASSERT_EQUAL_HEX8(55, buffer_quotient[1]);
+    TEST_ASSERT_EQUAL_HEX8(33, buffer_quotient[2]);
+    TEST_ASSERT_EQUAL_HEX8(200, buffer_quotient[3]);
 
 }
 
@@ -161,14 +145,6 @@ void gf8_poly_div_tests2()
 
     int result = gf8_poly_div(buffer_quotient, buffer_remainder, 
         p, q, 7, 5);
-
-    for(int loop = 0; loop < 7; loop++)
-        printf("%d ", buffer_quotient[loop]);
-    printf("\n");
-
-    for(int loop = 0; loop < 5; loop++)
-        printf("%d ", buffer_remainder[loop]);
-    printf("\n");
 
     TEST_ASSERT_EQUAL_INT8(0, result);
     TEST_ASSERT_EQUAL_HEX8(0, buffer_quotient[0]);

@@ -195,44 +195,81 @@ int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
         return -1;
     }
 
+    // Copy the dividend (p) to quotient buffer
+    for(int i = 0; i < p_len; i++) {
+        buffer_quotient[i] = p[i];
+    }
+
+    // Zero out the remainder for now
+    for(int i = 0; i < q_len; i++) {
+        buffer_remainder[i] = 0;
+    }
+
     // If p_len and q_len are the same size, but different, then
     // they aren't divisible. If they are the same, then the result 
     // I think is 1, but I'd have to write it out...
+    // For now, we'll just return an error and give back the quotient
+    // and remainder...
+    //
     // TODO: Handle this edge case appropiately.
     if(p_len == q_len) {
         return -1;
     }
 
+    // When polynomials are non-monic, we need the normalizer
+    uint8_t normalizer = q[0];
+    if(normalizer == 0)
+        normalizer = 1;
 
-    // Zero out the quotient 
-    for(int i = 0; i < p_len; i++) {
-        buffer_quotient[i] = 0;
-    }
-
-    // Copy the dividend into the remainder buffer
-    for(int i = 0; i < q_len; i++) {
-        buffer_remainder[i] = p[i];
-    }
-
-    // Polynomial long division
-    // Iterate through each term
-    for(int i = 0; i < p_len; i++) {
-        int p_degree = (p_len - i - 1);
-
-
-        
-        /*
-        // Iterate through each part of the divisor
-        for(int j = 0; j < q_len; j++) {
-            int q_degree = (q_len - j - 1);
-            int target_index = q_len - 1 - (p_degree - q_degree);
-            if(target_index < 0) {
-                return -1;
+    // Okay, this is the fancy synthetic division way directly adapted from 
+    // the wikiversity page since it seems faster and more concise than 
+    // the general synthetic division method.
+    for(int i = 0; i < (p_len - (q_len - 1)); i++) {
+        // Normalize the coefficient
+        buffer_quotient[i] = gf8_div(buffer_quotient[i], normalizer);
+        // Grab the current coefficient.
+        uint8_t coef = buffer_quotient[i];
+        // Avoid 0 since log(0) is undefined.
+        if(coef != 0) { 
+            // Skip first coefficient for the divisor.
+            for(int j = 1; j < q_len; j++) {   
+                // Avoid divide by zero
+                if(q[j] != 0) {
+                    // Do the actual math
+                    buffer_quotient[i+j] ^= gf8_mul(q[j], coef); 
+                } 
             }
+        }
+    }
 
-            buffer_quotient[target_index] = gf8_div(p[i], q[j]);
-            buffer_remainder[target_index] 
-        }*/
+    // The algorithm puts both the quotient and the remainder into 
+    // buffer_quotient, so we need to split it out
+    // We know the remainder is the degree as the divisor (which is length-1)
+    // so we can grab that off buffer_quotient
+    int seperator_index = p_len - (q_len - 1);
+    int seperator_size = p_len - seperator_index;
+
+    // Grab the remainder and delete it from the quotient
+    int k = 1;
+    for(int i = seperator_index; i < p_len; i++) {
+        // Should never happen but.. you never know..
+        if(k >= q_len) {
+            return -1;
+        }
+        buffer_remainder[k] = buffer_quotient[i];
+        buffer_quotient[i] = 0;
+        k++;
+    }
+
+    // Shift the quotient buffer over so the polynomials line up like
+    // they should. Zero out the higher order polynomials
+    for(int i = p_len - 1; i >= 0; i--) {
+        int j = i - seperator_size;
+        if(j < 0) {
+            buffer_quotient[i] = 0;
+        } else {
+            buffer_quotient[i] = buffer_quotient[j];
+        }
     }
 
     // If we made it this far, everything succeeded!
