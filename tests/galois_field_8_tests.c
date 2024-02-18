@@ -94,13 +94,13 @@ void gf8_muldiv_exhaustive_tests() {
     {
         for(uint8_t b = 0; b < 0xFF; b++)
         {
-                // We run the operations on against the 
-                // following equations:
-                //              r = a*b
-                // and          a = r*b^-1
-                // to show that   
-                //              a = a
-                // in fact does hold.
+            // We run the operations on against the 
+            // following equations:
+            //              r = a*b
+            // and          a = r*b^-1
+            // to show that   
+            //              a = a
+            // in fact does hold.
             uint8_t r = gf8_mul(a, b);
             uint8_t a_new = gf8_div(r, b);
 

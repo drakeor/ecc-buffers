@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "galois_field_8_poly_tests.h": "c",
+        "galois_field_8_tests.h": "c",
+        "galois_field_8.h": "c",
+        "unity.h": "c"
+    }
+}

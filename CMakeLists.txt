@@ -9,4 +9,5 @@ add_executable(ecc-buffer-tests
     tests/test_main.c 
     tests/unity/unity.c
     tests/galois_field_8_tests.c
+    tests/galois_field_8_poly_tests.c
 )
