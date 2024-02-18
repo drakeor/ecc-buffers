@@ -12,5 +12,6 @@ void gf8_poly_div_tests_simple();
 void gf8_poly_div_tests();
 void gf8_poly_div_tests2();
 
+void gf8_poly_eval_tests();
 
 #endif

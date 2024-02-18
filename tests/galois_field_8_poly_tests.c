@@ -156,3 +156,23 @@ void gf8_poly_div_tests2()
     TEST_ASSERT_EQUAL_HEX8(0xDF, buffer_quotient[6]);
 
 }
+
+void gf8_poly_eval_tests()
+{
+    // Trivial example
+    // Evaluate x^2 + x^1 + x^0 where x = 2.
+    uint8_t p[3] = { 1, 1, 1 };
+    int result = gf8_poly_eval(p, 2, 3);
+    TEST_ASSERT_EQUAL_INT8(7, result);
+
+    // Evaluate x^2 + 2*x^1 + 2*x^0 where x = 2.
+    uint8_t p2[3] = { 1, 2, 3 };
+    result = gf8_poly_eval(p2, 2, 3);
+    TEST_ASSERT_EQUAL_INT8(3, result);
+
+    // Slightly more complicated polynomial
+    // Evaluate 2*x^3 + 3*x^2 + 0*x^2 + 4*1 where x = 243
+    uint8_t p3[4] = { 2, 3, 0, 4 };
+    result = gf8_poly_eval(p3, 243, 4);
+    TEST_ASSERT_EQUAL_INT8(97, result);
+}

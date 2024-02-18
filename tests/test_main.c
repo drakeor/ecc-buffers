@@ -35,6 +35,7 @@ int main()
     RUN_TEST(gf8_poly_div_tests);
     RUN_TEST(gf8_poly_div_tests2);
 
+    RUN_TEST(gf8_poly_eval_tests);
 
     return UNITY_END();
 }
