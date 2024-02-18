@@ -3,12 +3,11 @@
 #include <stdio.h>
 
 int rs_generator_polynomial(uint8_t* buffer, 
-    uint8_t* working_buffer, int number_symbols)
+    uint8_t* working_buffer, int generator_length)
 {
-    int buffer_size = number_symbols + 1;
 
     // Zero out both buffers
-    for(int i = 0; i < buffer_size; i++) {
+    for(int i = 0; i < generator_length; i++) {
         buffer[i] = 0;
         working_buffer[i] = 0;
     }
@@ -22,7 +21,9 @@ int rs_generator_polynomial(uint8_t* buffer,
     int current_buffer = 0;
     int polyres = 0;
 
-    for(int i = 0; i < number_symbols; i++) {
+    // Remember, number of symbols is generator_length - 1
+    int number_of_symbols = generator_length - 1;
+    for(int i = 0; i < number_of_symbols; i++) {
         // Populate our new value of q
         q[1] = gf8_pow(2, i);
         
@@ -47,7 +48,7 @@ int rs_generator_polynomial(uint8_t* buffer,
 
     // If we ended on the working buffer, copy it to the buffer
     if(current_buffer == 1) {
-        for(int i = 0; i < buffer_size; i++) {
+        for(int i = 0; i < generator_length; i++) {
             buffer[i] = working_buffer[i];
         }
     }
@@ -60,16 +61,23 @@ int rs_encode(
     uint8_t* generator_polynomial, int generator_length)
 {
     // We can't encode a message with a buffer size over 255
-    int buffer_size = message_length + generator_length;
+    int buffer_size = message_length + generator_length - 1;
     if(buffer_size > 255) {
         return -1;
+    }
+
+    // Zero out the buffers
+    for(int i = 0; i < buffer_size; i++) {
+        buffer[i] = 0;
+        working_buffer[i] = 0;
     }
 
     // The remainder of the division will be the RS Code
     // We store it in working buffer for now.
     int result = gf8_poly_div(buffer, working_buffer, 
         message, generator_polynomial, 
-        message_length, generator_length);
+        buffer_size, generator_length);
+
 
     // Make sure it succeeded
     if(result != 0) {
@@ -77,11 +85,12 @@ int rs_encode(
     }
 
     // Copy the mesage and the remainder to the buffer
+    // We skip the first term in the remainder since it's 0
     for(int i = 0; i < buffer_size; i++) {
         if(i < message_length) {
             buffer[i] = message[i];
         } else {
-            buffer[i] = working_buffer[i - message_length];
+            buffer[i] = working_buffer[(i - message_length)+1];
         }
     }
     return 0;

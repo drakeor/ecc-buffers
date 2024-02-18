@@ -233,7 +233,7 @@ int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
         if(coef != 0) { 
             // Skip first coefficient for the divisor.
             for(int j = 1; j < q_len; j++) {   
-                // Avoid divide by zero
+                // Zero doesnt really do anything
                 if(q[j] != 0) {
                     // Do the actual math
                     buffer_quotient[i+j] ^= gf8_mul(q[j], coef); 
@@ -241,6 +241,7 @@ int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
             }
         }
     }
+
 
     // The algorithm puts both the quotient and the remainder into 
     // buffer_quotient, so we need to split it out

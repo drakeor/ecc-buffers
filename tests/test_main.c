@@ -43,6 +43,7 @@ int main()
     ////    
     RUN_TEST(rs_generator_polynomial_tests);
     RUN_TEST(rs_encode_tests);
+    RUN_TEST(rs_encode_tests_2);
 
     return UNITY_END();
 }
