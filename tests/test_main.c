@@ -47,6 +47,8 @@ int main()
 
     RUN_TEST(rs_calc_syndromes_tests);
     RUN_TEST(rs_calc_syndromes_tests_2);
+    RUN_TEST(rs_check_if_error_tests);
+
 
     return UNITY_END();
 }

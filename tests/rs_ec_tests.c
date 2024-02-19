@@ -4,8 +4,7 @@
 
 #define BUFFER_SIZE 512
 
-#define MESSAGE_SIZE 223
-#define SYMBOL_SIZE 32
+
 
 void rs_generator_polynomial_tests()
 {
@@ -57,7 +56,7 @@ void rs_encode_tests()
         working_buffer, polynomialLength);
 
     // Copy message to message_buffer
-    for(int i = 0; i < sizeof(message); i++) {
+    for(int i = 0; i < (int)sizeof(message); i++) {
         message_buffer[i] = message[i];
     }
 
@@ -79,7 +78,7 @@ void rs_encode_tests()
     };
 
     // Compare the output to the buffer
-    for(int i = 0; i < sizeof(expected_output); i++) {
+    for(uint64_t i = 0; i < sizeof(expected_output); i++) {
         TEST_ASSERT_EQUAL_HEX8(expected_output[i], buffer[i]);
     }
 }
@@ -100,7 +99,7 @@ void rs_encode_tests_2()
         working_buffer, polynomialLength);
 
     // Copy message to message_buffer
-    for(int i = 0; i < sizeof(message); i++) {
+    for(uint64_t i = 0; i < sizeof(message); i++) {
         message_buffer[i] = message[i];
     }
 
@@ -122,7 +121,7 @@ void rs_encode_tests_2()
     };
 
     // Compare the output to the buffer
-    for(int i = 0; i < sizeof(expected_output); i++) {
+    for(int i = 0; i < (int)sizeof(expected_output); i++) {
         TEST_ASSERT_EQUAL_HEX8(expected_output[i], buffer[i]);
     }
 }
@@ -167,7 +166,7 @@ void rs_calc_syndromes_tests_2()
         0x55, 0xE7, 0x4A, 0x69, 0xD0, 
         0x03, 0x7A, 0xE0, 0x86
     };
-    int message_size = sizeof(message);
+    int message_size = (int)sizeof(message);
 
     // Corrupt the first bit with a zero
     message[0] = 0;
@@ -188,4 +187,24 @@ void rs_calc_syndromes_tests_2()
     for(int i = 0; i < generator_length; i++) {
         TEST_ASSERT_EQUAL_HEX8(expected_syndrome[i], buffer[i]);
     }
+}
+
+void rs_check_if_error_tests()
+{
+    uint8_t syndromes[] = {
+        0x00, 0x55, 0xfc, 0x6e, 0xdd, 
+        0x8a, 0x2c, 0x08, 0x75, 0x35, 
+        0xba, 0x0f, 0xb6, 0xce, 0x17
+    };
+
+    int result = rs_check_if_error(syndromes, sizeof(syndromes));
+    TEST_ASSERT_EQUAL_INT8(1, result);
+
+    // Corrupt the first bit with a zero
+    uint8_t syndromes2[] = {
+        0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    result = rs_check_if_error(syndromes2, sizeof(syndromes2));
+    TEST_ASSERT_EQUAL_INT8(0, result);
 }

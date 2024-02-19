@@ -40,9 +40,26 @@ int rs_encode(
     uint8_t* generator_polynomial, int generator_length);
 
 
+/*
+    * Calculates the syndromes of a message
+    * @param buffer Needs to be at least the size of generator_length
+    * @param message Message to calculate the syndromes of
+    * @param message_length Length of the message
+    * @param generator_length Length of the generator polynomial
+    * @return 0 if the operation was successful, -1 otherwise
+*/
 int rs_calc_syndromes(
     uint8_t* buffer, uint8_t* message, 
     int message_length, int generator_length);
 
-    
+
+/*
+    * Checks if there are any errors in the message
+    * @param syndromes The syndromes to check
+    * @param syndromes_length Length of the syndromes
+    * @return 0 if there are no errors, -1 otherwise
+*/
+int rs_check_if_error(uint8_t* syndromes, 
+    int syndromes_length);
+
 #endif

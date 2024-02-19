@@ -39,6 +39,7 @@ int gf8_init()
         x = gf8_mul_nolut(x, 2);
     }
     gf8_initialized = 1;
+    return 0;
 }
 
 uint8_t gf8_add(uint8_t a, uint8_t b)
@@ -92,7 +93,11 @@ uint8_t gf8_mul(uint8_t a, uint8_t b)
     }
 
     // Multiply two numbers in GF(2^8) using the lookup tables
-    return gf8_exp[(gf8_log[a] + gf8_log[b]) % 0xFF];
+    int lookup_index = gf8_log[a] + gf8_log[b];
+    if (lookup_index > 0xFF) {
+        lookup_index -= 0xFF;
+    }
+    return gf8_exp[lookup_index];
 }
 
 uint8_t gf8_div(uint8_t a, uint8_t b)

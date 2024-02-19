@@ -116,3 +116,14 @@ int rs_calc_syndromes(
 
     return 0;
 }
+
+int rs_check_if_error(uint8_t* syndromes, int syndromes_length)
+{
+    // Check if any of the syndromes are non-zero
+    for(int i = 0; i < syndromes_length; i++) {
+        if(syndromes[i] != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
