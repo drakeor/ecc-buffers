@@ -3,12 +3,13 @@
 #include "rs_ec.h"
 #include <time.h>
 
-#define BUFFER_SIZE 384
-//#define MESSAGE_SIZE 223
-//#define SYMBOL_SIZE 32
+// The sum of these need to be under 2^8 = 256
+// This is a hard requirement.
+#define MESSAGE_SIZE 223
+#define SYMBOL_SIZE 32
 
-#define MESSAGE_SIZE 239
-#define SYMBOL_SIZE 16
+// Set this at least double MESSAGE_SIZE+SYMBOL_SIZE to be safe
+#define BUFFER_SIZE (MESSAGE_SIZE*2 + SYMBOL_SIZE*2)
 
 int main()
 {
