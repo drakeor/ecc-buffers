@@ -13,8 +13,8 @@
     *   !!NOTE that this will create (generator_length - 1) symbols
     * @return 0 if the operation was successful, -1 otherwise
 */
-int rs_generator_polynomial(uint8_t* buffer, uint8_t* working_buffer,
-    int generator_length);
+int rs_generator_polynomial(uint8_t* buffer, 
+    uint8_t* working_buffer, int generator_length);
 
 /*
     * Encodes a message using a Reed-Solomon code
@@ -39,4 +39,10 @@ int rs_encode(
     uint8_t* message, int message_length, 
     uint8_t* generator_polynomial, int generator_length);
 
+
+int rs_calc_syndromes(
+    uint8_t* buffer, uint8_t* message, 
+    int message_length, int generator_length);
+
+    
 #endif

@@ -127,7 +127,7 @@ int gf8_poly_div(uint8_t* buffer_quotient, uint8_t* buffer_remainder,
     * @param p Polynomial to evaluate
     * @param x Value to evaluate the polynomial at
     * @param p_len Length of the polynomial
-    * @return 0 if the operation was successful, -1 otherwise
+    * @return Scalar value of the polynomial
 */
 uint8_t gf8_poly_eval(uint8_t* p, uint8_t x, uint8_t p_len);
 

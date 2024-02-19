@@ -126,3 +126,66 @@ void rs_encode_tests_2()
         TEST_ASSERT_EQUAL_HEX8(expected_output[i], buffer[i]);
     }
 }
+
+void rs_calc_syndromes_tests()
+{
+    // Message from the wikipedia page
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    uint8_t message[] = {
+        // Original Message
+        0x55, 0x44, 0x33, 0x22, 0x11, 
+        // ECC Code
+        0x52, 0x2C, 0xF6, 0x29, 0xEE, 
+        0x55, 0xE7, 0x4A, 0x69, 0xD0, 
+        0x03, 0x7A, 0xE0, 0x86
+    };
+    int message_size = sizeof(message);
+
+    // The scenerio uses 14 symbols, which is a buffer of 15.
+    int generator_length = 15;
+    int result = rs_calc_syndromes(buffer, message, 
+        message_size, generator_length);
+
+    TEST_ASSERT_EQUAL_INT8(0, result);
+
+    // Check the buffer is all 0s
+    for(int i = 0; i < generator_length; i++) {
+        TEST_ASSERT_EQUAL_HEX8(0, buffer[i]);
+    }
+}
+
+
+void rs_calc_syndromes_tests_2()
+{
+    // Message from the wikipedia page
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    uint8_t message[] = {
+        // Original Message 
+        0x55, 0x44, 0x33, 0x22, 0x11, 
+        // ECC Code
+        0x52, 0x2C, 0xF6, 0x29, 0xEE, 
+        0x55, 0xE7, 0x4A, 0x69, 0xD0, 
+        0x03, 0x7A, 0xE0, 0x86
+    };
+    int message_size = sizeof(message);
+
+    // Corrupt the first bit with a zero
+    message[0] = 0;
+
+    // The scenerio uses 14 symbols, which is a buffer of 15.
+    int generator_length = 15;
+    int result = rs_calc_syndromes(buffer, message, 
+        message_size, generator_length);
+    TEST_ASSERT_EQUAL_INT8(0, result);
+
+    uint8_t expected_syndrome[] = {
+        0x00, 0x55, 0xfc, 0x6e, 0xdd, 
+        0x8a, 0x2c, 0x08, 0x75, 0x35, 
+        0xba, 0x0f, 0xb6, 0xce, 0x17
+    };
+
+    // Check the buffer matches expected_syndrome
+    for(int i = 0; i < generator_length; i++) {
+        TEST_ASSERT_EQUAL_HEX8(expected_syndrome[i], buffer[i]);
+    }
+}

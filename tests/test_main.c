@@ -45,5 +45,8 @@ int main()
     RUN_TEST(rs_encode_tests);
     RUN_TEST(rs_encode_tests_2);
 
+    RUN_TEST(rs_calc_syndromes_tests);
+    RUN_TEST(rs_calc_syndromes_tests_2);
+
     return UNITY_END();
 }

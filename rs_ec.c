@@ -95,3 +95,24 @@ int rs_encode(
     }
     return 0;
 }
+
+int rs_calc_syndromes(
+    uint8_t* buffer, uint8_t* message, 
+    int message_length, int generator_length)
+{
+    // Zero out the buffer
+    for(int i = 0; i < generator_length; i++) {
+        buffer[i] = 0;
+    }
+
+    // Calculate the syndromes
+    // We calculate offset by 1 since the first term is 0
+    // Also remember the number of symbols is 
+    // generator_length - 1 anyways so it works out nicely
+    for(int i=0; i < generator_length-1; i++) {
+        buffer[i+1] = gf8_poly_eval(message, gf8_pow(2, i), 
+            message_length);
+    }
+
+    return 0;
+}
