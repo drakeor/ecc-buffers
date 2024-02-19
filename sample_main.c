@@ -3,9 +3,12 @@
 #include "rs_ec.h"
 #include <time.h>
 
-#define BUFFER_SIZE 512
-#define MESSAGE_SIZE 223
-#define SYMBOL_SIZE 32
+#define BUFFER_SIZE 384
+//#define MESSAGE_SIZE 223
+//#define SYMBOL_SIZE 32
+
+#define MESSAGE_SIZE 239
+#define SYMBOL_SIZE 16
 
 int main()
 {
@@ -89,35 +92,68 @@ int main()
     printf("\n");
 
     // Calculate if there was an error
-    printf("Checking for Errors\n");
-    result = rs_check_if_error(working_buffer, SYMBOL_SIZE);
-    if(result != 0) {
-        printf("Error detected.\n");
-    } else {
-        printf("No errors detected.\n");
+    {
+        printf("Checking for Errors\n");
+        result = rs_check_if_error(working_buffer, SYMBOL_SIZE);
+        if(result != 0) {
+            printf("Error detected.\n");
+        } else {
+            printf("No errors detected.\n");
+        }
+
+        // Time the encoding
+        printf("Benchmarking rs_encode..\n");
+        int sample_size = 25000;
+        int data_size = MESSAGE_SIZE + SYMBOL_SIZE;
+        clock_t begin = clock();
+        for(int i = 0; i < sample_size; i++) {
+            rs_encode(buffer, working_buffer, 
+                message_buffer, MESSAGE_SIZE, 
+                generator_polynomial_buffer, SYMBOL_SIZE);
+        }
+        clock_t end = clock();
+        
+        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        double time_per_encode = time_spent / sample_size;
+        double data_per_second = data_size / time_per_encode;
+        double data_per_second_mbps = data_per_second / 1000000;
+
+        printf("Time spent: %f s\n", time_spent);
+        printf("Data per second encoded: %f MB/s\n", data_per_second_mbps);
     }
 
-    // Time the encoding
+    // Restore the buffer
+    buffer[0] = 'T';
 
+    // Calculate if there was an error
+    {
+        printf("Checking for Errors\n");
+        result = rs_check_if_error(working_buffer, SYMBOL_SIZE);
+        if(result != 0) {
+            printf("Error detected.\n");
+        } else {
+            printf("No errors detected.\n");
+        }
 
-    printf("Benchmarking rs_encode..\n");
-    int sample_size = 25000;
-    int data_size = MESSAGE_SIZE + SYMBOL_SIZE;
-    clock_t begin = clock();
-    for(int i = 0; i < sample_size; i++) {
-        rs_encode(buffer, working_buffer, 
-            message_buffer, MESSAGE_SIZE, 
-            generator_polynomial_buffer, SYMBOL_SIZE);
+        // Time the encoding
+        printf("Benchmarking rs_calc_syndromes..\n");
+        int sample_size = 25000;
+        int data_size = MESSAGE_SIZE + SYMBOL_SIZE;
+        clock_t begin = clock();
+        for(int i = 0; i < sample_size; i++) {
+            rs_calc_syndromes(working_buffer, buffer, 
+                rs_chunk_size, SYMBOL_SIZE);
+        }
+        clock_t end = clock();
+        
+        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        double time_per_encode = time_spent / sample_size;
+        double data_per_second = data_size / time_per_encode;
+        double data_per_second_mbps = data_per_second / 1000000;
+
+        printf("Time spent: %f s\n", time_spent);
+        printf("Data per second encoded: %f MB/s\n", data_per_second_mbps);
     }
-    clock_t end = clock();
-    
-    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    double time_per_encode = time_spent / sample_size;
-    double data_per_second = data_size / time_per_encode;
-    double data_per_second_mbps = data_per_second / 1000000;
-
-    printf("Time spent: %f s\n", time_spent);
-    printf("Data per second encoded: %f MB/s\n", data_per_second_mbps);
 
     return 0;
 }
